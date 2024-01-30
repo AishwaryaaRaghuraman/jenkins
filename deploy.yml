@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: demo
-        image: us.gcr.io/phonic-realm-411009/us.gcr.io/build_hello1:latest
+        image: us-docker.pkg.dev/phonic-realm-411009/us.gcr.io/build_hello1:latest
         ports:
         - containerPort: 8080
           name: http
