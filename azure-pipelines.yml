@@ -1,39 +1,60 @@
-# Maven
-# Build your Java project and run tests with Apache Maven.
-# Deploy
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+# Azure Pipelines YAML file
+# This file defines the CI/CD pipeline for a Springboot application using Maven.
 
-trigger:
-- main
+# Parameters
+parameters:
+- name: gitUsername
+  type: string
+  default: 'username'
+- name: repoName
+  type: string
+  default: 'repo-name'
+- name: branchName
+  type: string
+  default: 'main'
+- name: localDirectory
+  type: string
+  default: '/home/user/local-directory'
 
-variables:
-   - name: process.clean
-     value: false
+# Pipeline steps
+steps:
+- task: CloneRepository@0
+  inputs:
+    repositoryName: $(repoName)
+    branch: $(branchName)
 
-pool: Default
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-DskipTests'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    mavenVersionOption: 'Default'
 
-stages:
-- stage: Build
-  displayName: Build stage
-  jobs:  
-  - job: Build
-    displayName: Build Maven Project
-    steps:
-    - task: Maven@3
-      #env:
-      #  JAVA_HOME: /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
-      displayName: 'Maven Package'
-      inputs:
-        mavenPomFile: 'pom.xml'
-        goals: 'package'
-    - task: CopyFiles@2
-      displayName: 'Copy Files to artifact staging directory'
-      inputs:
-        SourceFolder: '$(System.DefaultWorkingDirectory)'
-        Contents: '**/target/*.?(war|jar)'
-        TargetFolder: $(Build.ArtifactStagingDirectory)
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathToPublish: $(Build.ArtifactStagingDirectory)
-        artifactName: SampleSpringBootBuild
+- task: SonarQubePrepare@4
+  inputs:
+    SonarQube: 'SonarQube'
+    scannerMode: 'MSBuild'
+    projectKey: 'MyProject'
+    projectName: 'MyProject'
+    projectVersion: '1.0'
+
+- task: SonarQubeAnalyze@4
+  inputs:
+    SonarQube: 'SonarQube'
+    scannerMode: 'MSBuild'
+
+- task: SonarQubePublish@4
+  inputs:
+    SonarQube: 'SonarQube'
+    scannerMode: 'MSBuild'
+
+- task: CleanDirectory@1
+  inputs:
+    path: $(localDirectory)
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
