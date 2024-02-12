@@ -20,11 +20,7 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-    - task: CloneRepo@2
-      inputs:
-        repositoryName: $(repoName)
-        branch: $(branchName)
-        clean: true
+  
     - task: Maven@3
       inputs:
         mavenPomFile: 'pom.xml'
@@ -37,10 +33,6 @@ stages:
           dbUrl: 'Sonar'
           dbUsername: 'sonar_db'
           dbPassword: 'sonar'   
-
-    - task: CleanDirectory@1
-      inputs:
-        path: '$(Agent.TempDirectory)'
     - task: PublishBuildArtifacts@1
       inputs:
           pathtoPublish: '$(Build.ArtifactStagingDirectory)'
