@@ -3,7 +3,7 @@
 # Parameters
 parameters:
   vmImage: 'ubuntu-latest'
-  repository: 'my-spring-boot-app'
+  repository: 'jenkins'
   dockerfile: 'Dockerfile'
   containerRegistry: 'my-container-registry'
 
