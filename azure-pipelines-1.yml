@@ -4,13 +4,13 @@
 parameters:
 - name: gitUsername
   type: string
-  default: 'azureuser'
+  default: 'ruchi672'
 - name: repoName
   type: string
-  default: 'spring-boot-app'
+  default: 'homepage-app-springboot-jar'
 - name: branchName
   type: string
-  default: 'main'
+  default: 'master'
 
 # Stages
 stages:
