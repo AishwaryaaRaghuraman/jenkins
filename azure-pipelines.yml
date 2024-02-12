@@ -1,12 +1,8 @@
 # Azure DevOps YAML pipeline script for Springboot application using Maven
-
-# Parameters
-parameters:
-  vmImage: 'ubuntu-latest'
-  repository: 'jenkins'
-  dockerfile: 'Dockerfile'
-  containerRegistry: 'my-container-registry'
-
+trigger:
+  branches:
+    include:
+      - master
 # Variables
 variables:
   buildConfiguration: 'Release'
@@ -14,13 +10,11 @@ variables:
 # Stages
 stages:
   - Build
-  - PushImage
-
 # Jobs
 jobs:
   - job: Build
     pool:
-      vmImage: $(vmImage)
+      vmImage: 'ubuntu-latest'
     steps:
       - task: Maven@3
         inputs:
@@ -28,14 +22,3 @@ jobs:
           goals: 'clean package'
           publishJUnitResults: false
 
-  - job: PushImage
-    dependsOn: Build
-    pool:
-      vmImage: $(vmImage)
-    steps:
-      - task: Docker@2
-        inputs:
-          containerRegistry: $(containerRegistry)
-          repository: $(repository)
-          command: 'buildAndPush'
-          Dockerfile: $(dockerfile)
