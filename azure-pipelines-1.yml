@@ -1,73 +1,58 @@
-# Azure Pipelines YAML file for a Springboot application with Maven build and SonarQube analysis
+# Azure Pipelines YAML file for Springboot application
 
 # Parameters
 parameters:
-- name: framework
-  type: string
-  default: springboot
-- name: buildTool
-  type: string
-  default: maven
 - name: gitUsername
   type: string
+  default: 'azureuser'
 - name: repoName
   type: string
+  default: 'spring-boot-app'
 - name: branchName
   type: string
+  default: 'main'
 
 # Stages
 stages:
-- clone
-- build
-- test
-- deploy
-
-# Jobs
-jobs:
-  - job: CloneRepo
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-      - checkout: self
-        clean: true
-        submodules: true
-        fetchDepth: 1
-      - script: |
-          sudo apt-get update
-          sudo apt-get install git
-          git clone https://github.com/${gitUsername}/${repoName}.git
-          cd ${repoName}
-          git checkout ${branchName}
-    displayName: Clone Repository
-
+- stage: Build
+  jobs:
   - job: Build
-    dependsOn: CloneRepo
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-      - script: |
-          cd ${repoName}
-          mvn clean install
-    displayName: Build Application
-
-  - job: Test
-    dependsOn: Build
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-      - script: |
-          cd ${repoName}
-          mvn sonar:sonar
-    displayName: Run SonarQube Analysis
-
-  - job: Deploy
-    dependsOn: Test
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-      - script: |
-          cd ${repoName}
-          mvn clean package
-          sudo cp target/*.jar /opt/nexus/nexus-data/storage/
-    displayName: Deploy Application to Nexus
-
+    - task: Checkout@2
+      inputs:
+        repositoryName: $(repoName)
+        branch: $(branchName)
+        clean: true
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        goals: 'clean package'
+    - task: SonarQubePrepare@4
+      inputs:
+        SonarQube: 'SonarQube'
+        scannerMode: 'MSBuild'
+        projectKey: '$(repoName)'
+        projectName: '$(repoName)'
+        projectVersion: '1.0'
+    - task: SonarQubeAnalyze@4
+      inputs:
+        SonarQube: 'SonarQube'
+        scannerMode: 'MSBuild'
+        buildProcessId: '$(Build.BuildId)'
+    - task: SonarQubePublish@4
+      inputs:
+        SonarQube: 'SonarQube'
+        scannerMode: 'MSBuild'
+    - task: SonarQubeQualityGate@4
+      inputs:
+        SonarQube: 'SonarQube'
+        qualityGateName: 'SonarQubeQualityGate'
+    - task: CleanDirectory@1
+      inputs:
+        path: '$(Agent.TempDirectory)'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: 'drop'
