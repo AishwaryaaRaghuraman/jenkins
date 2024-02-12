@@ -1,60 +1,76 @@
-# Azure Pipelines YAML file
-# This file defines the CI/CD pipeline for a Springboot application using Maven.
+# Azure Pipelines YAML file for a Springboot application with Maven build and SonarQube analysis
 
 # Parameters
 parameters:
+- name: framework
+  type: string
+  default: springboot
+- name: buildTool
+  type: string
+  default: maven
 - name: gitUsername
   type: string
-  default: 'username'
 - name: repoName
   type: string
-  default: 'repo-name'
 - name: branchName
   type: string
-  default: 'main'
-- name: localDirectory
-  type: string
-  default: '/home/user/local-directory'
 
-# Pipeline steps
-steps:
-- task: CloneRepository@0
-  inputs:
-    repositoryName: $(repoName)
-    branch: $(branchName)
+# Stages
+stages:
+- clone
+- build
+- test
+- deploy
 
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-DskipTests'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'
-    mavenVersionOption: 'Default'
+# Jobs
+jobs:
+  - job: CloneRepo
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+        clean: true
+        submodules: true
+        fetchDepth: 1
+      - script: |
+          sudo apt-get update
+          sudo apt-get install git
+          git clone https://github.com/${gitUsername}/${repoName}.git
+          cd ${repoName}
+          git checkout ${branchName}
+    displayName: Clone Repository
 
-- task: SonarQubePrepare@4
-  inputs:
-    SonarQube: 'SonarQube'
-    scannerMode: 'MSBuild'
-    projectKey: 'MyProject'
-    projectName: 'MyProject'
-    projectVersion: '1.0'
+  - job: Build
+    dependsOn: CloneRepo
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - script: |
+          cd ${repoName}
+          mvn clean install
+    displayName: Build Application
 
-- task: SonarQubeAnalyze@4
-  inputs:
-    SonarQube: 'SonarQube'
-    scannerMode: 'MSBuild'
+  - job: Test
+    dependsOn: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - script: |
+          cd ${repoName}
+          mvn sonar:sonar
+    displayName: Run SonarQube Analysis
 
-- task: SonarQubePublish@4
-  inputs:
-    SonarQube: 'SonarQube'
-    scannerMode: 'MSBuild'
+  - job: Deploy
+    dependsOn: Test
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - script: |
+          cd ${repoName}
+          mvn clean package
+          sudo cp target/*.jar /opt/nexus/nexus-data/storage/
+    displayName: Deploy Application to Nexus
 
-- task: CleanDirectory@1
-  inputs:
-    path: $(localDirectory)
-
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+# Post-processing
+postProcessing:
+  clean: true
