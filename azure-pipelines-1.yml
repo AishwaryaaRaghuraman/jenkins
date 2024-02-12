@@ -14,13 +14,17 @@ parameters:
 
 # Stages
 stages:
+
+
 - stage: Build
   jobs:
   - job: Build
     pool:
       vmImage: Default
     steps:
-  
+    - script: Clone Repo
+      displayName: Clone a repo
+
     - task: Maven@3
       inputs:
         mavenPomFile: 'pom.xml'
@@ -33,6 +37,8 @@ stages:
           dbUrl: 'Sonar'
           dbUsername: 'sonar_db'
           dbPassword: 'sonar'   
+    - script: Clean a directory
+      displayName: Clone a repo
     - task: PublishBuildArtifacts@1
       inputs:
           pathtoPublish: '$(Build.ArtifactStagingDirectory)'
