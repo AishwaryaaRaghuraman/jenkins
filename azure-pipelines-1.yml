@@ -20,7 +20,7 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-    - task: Checkout@2
+    - task: CloneRepo@2
       inputs:
         repositoryName: $(repoName)
         branch: $(branchName)
@@ -29,30 +29,19 @@ stages:
       inputs:
         mavenPomFile: 'pom.xml'
         goals: 'clean package'
-    - task: SonarQubePrepare@4
+    - task: SonarQubePreBuild@1
       inputs:
-        SonarQube: 'SonarQube'
-        scannerMode: 'MSBuild'
-        projectKey: '$(repoName)'
-        projectName: '$(repoName)'
-        projectVersion: '1.0'
-    - task: SonarQubeAnalyze@4
-      inputs:
-        SonarQube: 'SonarQube'
-        scannerMode: 'MSBuild'
-        buildProcessId: '$(Build.BuildId)'
-    - task: SonarQubePublish@4
-      inputs:
-        SonarQube: 'SonarQube'
-        scannerMode: 'MSBuild'
-    - task: SonarQubeQualityGate@4
-      inputs:
-        SonarQube: 'SonarQube'
-        qualityGateName: 'SonarQubeQualityGate'
+          projectKey: '21'
+          projectName: 'sonar'
+          projectVersion: '1.0'
+          dbUrl: 'Sonar'
+          dbUsername: 'sonar_db'
+          dbPassword: 'sonar'   
+
     - task: CleanDirectory@1
       inputs:
         path: '$(Agent.TempDirectory)'
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        artifactName: 'drop'
+          pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          artifactName: 'drop'
