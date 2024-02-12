@@ -71,6 +71,3 @@ jobs:
           sudo cp target/*.jar /opt/nexus/nexus-data/storage/
     displayName: Deploy Application to Nexus
 
-# Post-processing
-postProcessing:
-  clean: true
