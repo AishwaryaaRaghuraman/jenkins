@@ -1,0 +1,45 @@
+# Azure Pipelines YAML file for Springboot application
+
+# Parameters
+parameters:
+- name: gitUsername
+  type: string
+  default: 'ruchi672'
+- name: repoName
+  type: string
+  default: 'homepage-app-springboot-jar'
+- name: branchName
+  type: string
+  default: 'master'
+
+# Stages
+stages:
+
+
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      vmImage: Default
+    steps:
+    - script: Clone Repo
+      displayName: Clone a repo
+
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        goals: 'clean package'
+    - task: SonarQubePreBuild@1
+      inputs:
+          projectKey: '21'
+          projectName: 'sonar'
+          projectVersion: '1.0'
+          dbUrl: 'Sonar'
+          dbUsername: 'sonar_db'
+          dbPassword: 'sonar'   
+    - script: Clean a directory
+      displayName: Clone a repo
+    - task: PublishBuildArtifacts@1
+      inputs:
+          pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          artifactName: 'drop'
