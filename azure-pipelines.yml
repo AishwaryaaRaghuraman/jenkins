@@ -1,40 +1,41 @@
-# Azure DevOps YAML pipeline script
+# Azure DevOps YAML pipeline script for Springboot application using Maven
 
 # Parameters
 parameters:
-- name: vmImage
-  type: string
-  default: ubuntu-latest
-- name: repository
-  type: string
-  default: https://github.com/Azure/azure-quickstart-templates.git
-- name: dockerfile
-  type: string
-  default: Dockerfile
-- name: containerRegistry
-  type: string
-  default: myregistry
-
-# Pool
-pool:
-  vmImage: $(vmImage)
+  vmImage: 'ubuntu-latest'
+  repository: 'my-spring-boot-app'
+  dockerfile: 'Dockerfile'
+  containerRegistry: 'my-container-registry'
 
 # Variables
 variables:
-- name: imageName
-  value: $(containerRegistry)/my-app
+  buildConfiguration: 'Release'
 
 # Stages
 stages:
-- stage: Build and Push Image
-  jobs:
+  - Build
+  - PushImage
+
+# Jobs
+jobs:
   - job: Build
+    pool:
+      vmImage: $(vmImage)
     steps:
-    - checkout: self
-      clean: true
-    - task: Docker@2
-      inputs:
-        containerRegistry: $(containerRegistry)
-        repository: $(repository)
-        dockerFile: $(dockerfile)
-        command: buildAndPush
+      - task: Maven@3
+        inputs:
+          mavenPomFile: 'pom.xml'
+          goals: 'clean package'
+          publishJUnitResults: false
+
+  - job: PushImage
+    dependsOn: Build
+    pool:
+      vmImage: $(vmImage)
+    steps:
+      - task: Docker@2
+        inputs:
+          containerRegistry: $(containerRegistry)
+          repository: $(repository)
+          command: 'buildAndPush'
+          Dockerfile: $(dockerfile)
