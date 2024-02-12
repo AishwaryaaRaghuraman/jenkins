@@ -1,0 +1,60 @@
+# Azure Pipelines YAML file
+# This file defines the CI/CD pipeline for a Springboot application using Maven.
+
+# Parameters
+parameters:
+- name: gitUsername
+  type: string
+  default: 'username'
+- name: repoName
+  type: string
+  default: 'repo-name'
+- name: branchName
+  type: string
+  default: 'main'
+- name: localDirectory
+  type: string
+  default: '/home/user/local-directory'
+
+# Pipeline steps
+steps:
+- task: CloneRepository@0
+  inputs:
+    repositoryName: $(repoName)
+    branch: $(branchName)
+
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-DskipTests'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    mavenVersionOption: 'Default'
+
+- task: SonarQubePrepare@4
+  inputs:
+    SonarQube: 'SonarQube'
+    scannerMode: 'MSBuild'
+    projectKey: 'MyProject'
+    projectName: 'MyProject'
+    projectVersion: '1.0'
+
+- task: SonarQubeAnalyze@4
+  inputs:
+    SonarQube: 'SonarQube'
+    scannerMode: 'MSBuild'
+
+- task: SonarQubePublish@4
+  inputs:
+    SonarQube: 'SonarQube'
+    scannerMode: 'MSBuild'
+
+- task: CleanDirectory@1
+  inputs:
+    path: $(localDirectory)
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
