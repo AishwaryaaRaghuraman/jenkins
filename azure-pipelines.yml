@@ -1,0 +1,40 @@
+# Azure DevOps YAML pipeline script
+
+# Parameters
+parameters:
+- name: vmImage
+  type: string
+  default: ubuntu-latest
+- name: repository
+  type: string
+  default: https://github.com/Azure/azure-quickstart-templates.git
+- name: dockerfile
+  type: string
+  default: Dockerfile
+- name: containerRegistry
+  type: string
+  default: myregistry
+
+# Pool
+pool:
+  vmImage: $(vmImage)
+
+# Variables
+variables:
+- name: imageName
+  value: $(containerRegistry)/my-app
+
+# Stages
+stages:
+- stage: Build and Push Image
+  jobs:
+  - job: Build
+    steps:
+    - checkout: self
+      clean: true
+    - task: Docker@2
+      inputs:
+        containerRegistry: $(containerRegistry)
+        repository: $(repository)
+        dockerFile: $(dockerfile)
+        command: buildAndPush
