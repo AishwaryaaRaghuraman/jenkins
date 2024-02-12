@@ -8,10 +8,9 @@ variables:
 
 # Stages
   stages:
-   - Build
 # Jobs
   jobs:
-    - job: Build
+    - job: BuildandPush
       pool:
         vmImage: 'ubuntu-latest'
       steps:
