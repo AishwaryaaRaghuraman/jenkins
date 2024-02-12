@@ -8,16 +8,16 @@ variables:
 
 # Stages
   stages:
-  - Build
+   - Build
 # Jobs
   jobs:
-  - job: Build
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-      - task: Maven@3
-        inputs:
-          mavenPomFile: 'pom.xml'
-          goals: 'clean package'
-          publishJUnitResults: false
+    - job: Build
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+        - task: Maven@3
+          inputs:
+            mavenPomFile: 'pom.xml'
+            goals: 'clean package'
+            publishJUnitResults: false
 
