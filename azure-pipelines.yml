@@ -1,60 +1,106 @@
-# Azure Pipelines YAML file
-# This file defines the CI/CD pipeline for a Springboot application using Maven.
+# Azure Pipelines YAML file for Springboot Maven application
 
-# Parameters
-parameters:
-- name: gitUsername
-  type: string
-  default: 'username'
-- name: repoName
-  type: string
-  default: 'repo-name'
-- name: branchName
-  type: string
-  default: 'main'
-- name: localDirectory
-  type: string
-  default: '/home/user/local-directory'
+# Variables
+variables:
+  # Git repository details
+  gitUsername: $(gitUsername)
+  repoName: $(repoName)
+  branchName: $(branchName)
 
-# Pipeline steps
-steps:
-- task: CloneRepository@0
-  inputs:
-    repositoryName: $(repoName)
-    branch: $(branchName)
+  # Maven settings
+  mavenSettings: $(mavenSettings)
 
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-DskipTests'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'
-    mavenVersionOption: 'Default'
+  # SonarQube details
+  sonarQubeUrl: $(sonarQubeUrl)
+  sonarQubeToken: $(sonarQubeToken)
 
-- task: SonarQubePrepare@4
-  inputs:
-    SonarQube: 'SonarQube'
-    scannerMode: 'MSBuild'
-    projectKey: 'MyProject'
-    projectName: 'MyProject'
-    projectVersion: '1.0'
+  # Nexus details
+  nexusUrl: $(nexusUrl)
+  nexusUsername: $(nexusUsername)
+  nexusPassword: $(nexusPassword)
 
-- task: SonarQubeAnalyze@4
-  inputs:
-    SonarQube: 'SonarQube'
-    scannerMode: 'MSBuild'
+# Stages
+stages:
+  - Clone
+  - Build
+  - SonarQube Scan
+  - Quality Gate
+  - Clean
+  - Publish
 
-- task: SonarQubePublish@4
-  inputs:
-    SonarQube: 'SonarQube'
-    scannerMode: 'MSBuild'
+# Jobs
+jobs:
+  # Clone the Git repository
+  Clone:
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+        clean: true
+        lfs: true
+        submodules: true
+        sshKey: $(gitUsername)
 
-- task: CleanDirectory@1
-  inputs:
-    path: $(localDirectory)
+  # Build the Springboot application using Maven
+  Build:
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: UseMaven@1
+        inputs:
+          mavenVersion: '3.x'
+          mavenAuthenticateFeed: true
+          mavenSettingsFile: $(mavenSettings)
+          goals: 'clean package'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+  # Perform SonarQube scan
+  SonarQube Scan:
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: SonarQubePrepare@4
+        inputs:
+          SonarQube: $(sonarQubeUrl)
+          scannerMode: 'MSBuild'
+          projectKey: $(repoName)
+          projectName: $(repoName)
+          projectVersion: '1.0'
+
+      - task: SonarQubeAnalyze@4
+
+  # Check the quality gate status
+  Quality Gate:
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: SonarQubePublish@4
+        inputs:
+          SonarQube: $(sonarQubeUrl)
+          publishResults: true
+
+  # Clean the local directory
+  Clean:
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - script: rm -rf $(Build.SourcesDirectory)/target
+
+  # Publish the artifact to Nexus
+  Publish:
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: NpmAuthenticate@1
+        inputs:
+          registryUrl: $(nexusUrl)
+          allowCustomRegistry: true
+          customRegistry: $(nexusUrl)
+          username: $(nexusUsername)
+          password: $(nexusPassword)
+
+      - task: NpmPublish@1
+        inputs:
+          pathToPackage: $(Build.ArtifactStagingDirectory)
+          registryUrl: $(nexusUrl)
+          allowCustomRegistry: true
+          customRegistry: $(nexusUrl)
