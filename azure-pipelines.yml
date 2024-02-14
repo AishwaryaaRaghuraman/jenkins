@@ -8,14 +8,6 @@ parameters:
 - name: dockerImageName
   type: string
   default: myapp
-- name: sonarqubeProjectKey
-  type: string
-  default: myapp
-- name: sonarqubeUrl
-  type: string
-  default: http://localhost:9000
-- name: sonarqubeToken
-  type: string
  
 trigger:
 - main
@@ -33,18 +25,15 @@ steps:
   continueOnError: false
  
 - script: |
-    echo "Building Docker Image"
-    sudo docker build -t $(dockerImageName) .
-  displayName: 'Build Docker Image'
- 
-- script: |
     echo "Running SonarQube Scan"
-    sudo docker run -e SONAR_HOST_URL=$(sonarqubeUrl) \
-                  -e SONAR_LOGIN=$(sonarqubeToken) \
-                  -e SONAR_PROJECT_KEY=$(sonarqubeProjectKey) \
-                  $(dockerImageName)
+    mvn sonar:sonar
   displayName: 'Run SonarQube Scan'
- 
+
+- script: |
+    echo "Quality Gate"
+    mvn sonar:sonar -Dsonar.qualitygate.wait=true
+  displayName: 'Run SonarQube Scan'
+
 - script: |
     echo "Cleaning Local Directory"
     sudo rm -rf *
