@@ -1,13 +1,3 @@
-parameters:
-- name: gitUsername
-  type: string
-- name: repoName
-  type: string
-- name: branchName
-  type: string
-- name: dockerImageName
-  type: string
-  default: myapp
  
 trigger:
 - main
@@ -16,31 +6,13 @@ pool:
   vmImage: 'ubuntu-latest'
  
 steps:
-- script: echo "Git Clone"
-  displayName: 'Git Clone'
-  env:
-    GIT_USERNAME: $(gitUsername)
-    REPO_NAME: $(repoName)
-    BRANCH_NAME: $(branchName)
-  continueOnError: false
- 
-- script: |
-    echo "Running SonarQube Scan"
-    mvn sonar:sonar
-  displayName: 'Run SonarQube Scan'
-
-- script: |
-    echo "Quality Gate"
-    mvn sonar:sonar -Dsonar.qualitygate.wait=true
-  displayName: 'Run SonarQube Scan'
-
-- script: |
-    echo "Cleaning Local Directory"
-    sudo rm -rf *
-  displayName: 'Clean Local Directory'
- 
-- task: PublishPipelineArtifact@1
+- task: Maven@4
   inputs:
-    targetPath: '$(Pipeline.Workspace)'
-    artifact: 'build-artifact'
-    publishLocation: 'pipeline'
+    mavenPomFile: 'pom.xml'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    javaHomeOption: 'JDKVersion'
+    mavenVersionOption: 'Default'
+    mavenAuthenticateFeed: false
+    effectivePomSkip: false
+    sonarQubeRunAnalysis: false
