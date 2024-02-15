@@ -1,51 +1,97 @@
+# Azure Pipelines YAML file for a DevOps Engineer build pipeline
+
+# Parameters
 parameters:
-- name: gitUsername
-  type: string
-  default: AishwaryaaRaghuraman
-- name: repoName
-  type: string
-  default: jenkins
-- name: branchName
-  type: string
-  default: main
-- name: sonarqubeProjectKey
-  type: string
-  default: myapp
-- name: sonarqubeUrl
-  type: string
-  default: http://localhost:9500
-- name: sonarqubeToken
-  type: string
-  default: ad314fb1721552d19bfbef417a1add8d0ecdeaa4
-trigger:
-- main
- 
-pool: default
- 
-steps:
-- script: echo "Git Clone"
-  displayName: 'Git Clone'
-  env:
-    GIT_USERNAME: $(gitUsername)
-    REPO_NAME: $(repoName)
-    BRANCH_NAME: $(branchName)
-  continueOnError: false
- 
-- script: |
-    echo "Running SonarQube Scan"
-    sudo docker run -e SONAR_HOST_URL=$(sonarqubeUrl) \
-                  -e SONAR_LOGIN=$(sonarqubeToken) \
-                  -e SONAR_PROJECT_KEY=$(sonarqubeProjectKey) \
-                  $(dockerImageName)
-  displayName: 'Run SonarQube Scan'
- 
-- script: |
-    echo "Cleaning Local Directory"
-    sudo rm -rf *
-  displayName: 'Clean Local Directory'
- 
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(Pipeline.Workspace)'
-    artifact: 'build-artifact'
-    publishLocation: 'pipeline'
+  - name: gitUsername
+    displayName: Git Username
+    type: string
+    default: 'my-git-username'
+  - name: repoName
+    displayName: Repository Name
+    type: string
+    default: 'my-repo-name'
+  - name: branchName
+    displayName: Branch Name
+    type: string
+    default: 'main'
+  - name: framework
+    displayName: Framework
+    type: string
+    default: 'Springboot'
+  - name: buildTool
+    displayName: Build Tool
+    type: string
+    default: 'Maven'
+
+# Stages
+stages:
+  - stage: Clone
+    displayName: Clone Repository
+    jobs:
+      - job: CloneRepo
+        displayName: Clone Repository
+        steps:
+          - checkout: self
+            clean: true
+            submodules: true
+
+  - stage: Build
+    displayName: Build Project
+    jobs:
+      - job: BuildProject
+        displayName: Build Project
+        steps:
+          - script: mvn clean install
+            displayName: Build Project
+
+  - stage: SonarScan
+    displayName: Perform SonarScan
+    jobs:
+      - job: SonarScan
+        displayName: Perform SonarScan
+        steps:
+          - task: SonarQubePrepare@4
+            displayName: Prepare SonarQube
+            inputs:
+              SonarQube: 'SonarQube'
+              projectKey: 'com.charan:homepage-app-springboot-jar'
+              projectName: 'my-project-name'
+          - task: SonarQubeAnalyze@4
+            displayName: Analyze Code
+          - task: SonarQubePublish@4
+            displayName: Publish Results
+
+  - stage: QualityGate
+    displayName: Check Quality Gate
+    jobs:
+      - job: QualityGate
+        displayName: Check Quality Gate
+        steps:
+          - task: SonarQubeQualityGate@2
+            displayName: Check Quality Gate
+            inputs:
+              SonarQube: 'SonarQube'
+              projectKey: 'my-project-key'
+              projectName: 'my-project-name'
+
+  - stage: Clean
+    displayName: Clean Local Directory
+    jobs:
+      - job: CleanLocalDirectory
+        displayName: Clean Local Directory
+        steps:
+          - script: sudo rm -rf *
+            displayName: Clean Local Directory
+
+  - stage: UploadArtifact
+    displayName: Upload Artifact to Nexus
+    jobs:
+      - job: UploadArtifact
+        displayName: Upload Artifact to Nexus
+        steps:
+          - task: PublishBuildArtifacts@1
+            displayName: Upload Artifact to Nexus
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'my-artifact'
+              publishLocation: 'Nexus' 
