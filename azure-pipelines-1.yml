@@ -8,9 +8,6 @@ parameters:
 - name: branchName
   type: string
   default: main
-- name: dockerImageName
-  type: string
-  default: myapp
 - name: sonarqubeProjectKey
   type: string
   default: myapp
@@ -33,11 +30,6 @@ steps:
     REPO_NAME: $(repoName)
     BRANCH_NAME: $(branchName)
   continueOnError: false
- 
-- script: |
-    echo "Building Docker Image"
-    docker build -t $(dockerImageName):lastest .
-  displayName: 'Build Docker Image'
  
 - script: |
     echo "Running SonarQube Scan"
