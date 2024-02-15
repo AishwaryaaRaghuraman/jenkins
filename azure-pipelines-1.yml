@@ -9,7 +9,7 @@ trigger:
 pool:
   name: local
   demands:
-    - agent.name == "Test"
+    - "Test"
 
 steps:
 - task: Maven@3
