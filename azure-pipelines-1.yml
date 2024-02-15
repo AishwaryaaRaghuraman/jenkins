@@ -6,7 +6,7 @@
 trigger:
 - main
 
-pool: GMW3S93
+pool: Default
 
 steps:
 - task: Maven@3
