@@ -41,7 +41,7 @@ stages:
       - job: BuildProject
         displayName: Build Project
         steps:
-          - script: mvn clean install
+          - script: mvn clean package
             displayName: Build Project
 
   - stage: SonarScan
@@ -50,16 +50,8 @@ stages:
       - job: SonarScan
         displayName: Perform SonarScan
         steps:
-          - task: SonarQubePrepare@4
-            displayName: Prepare SonarQube
-            inputs:
-              SonarQube: 'SonarQube'
-              projectKey: 'com.charan:homepage-app-springboot-jar'
-              projectName: 'my-project-name'
-          - task: SonarQubeAnalyze@4
-            displayName: Analyze Code
-          - task: SonarQubePublish@4
-            displayName: Publish Results
+          - script: sonar-scanner -Dsonar.projectKey=${REPO_NAME} -Dsonar.sources=src/main/java -Dsonar.java.binaries=target/classes
+            displayName: SonarScan 
 
   - stage: QualityGate
     displayName: Check Quality Gate
@@ -67,12 +59,8 @@ stages:
       - job: QualityGate
         displayName: Check Quality Gate
         steps:
-          - task: SonarQubeQualityGate@2
-            displayName: Check Quality Gate
-            inputs:
-              SonarQube: 'SonarQube'
-              projectKey: 'my-project-key'
-              projectName: 'my-project-name'
+          - script: sonar-quality-gate -Dsonar.projectKey=${REPO_NAME}
+            displayName: QualityGate
 
   - stage: Clean
     displayName: Clean Local Directory
@@ -83,15 +71,4 @@ stages:
           - script: sudo rm -rf *
             displayName: Clean Local Directory
 
-  - stage: UploadArtifact
-    displayName: Upload Artifact to Nexus
-    jobs:
-      - job: UploadArtifact
-        displayName: Upload Artifact to Nexus
-        steps:
-          - task: PublishBuildArtifacts@1
-            displayName: Upload Artifact to Nexus
-            inputs:
-              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-              ArtifactName: 'my-artifact'
-              publishLocation: 'Nexus' 
+              
