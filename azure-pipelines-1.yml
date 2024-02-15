@@ -13,15 +13,14 @@ parameters:
   default: myapp
 - name: sonarqubeUrl
   type: string
-default: http://localhost:9000
+  default: http://localhost:9000
 - name: sonarqubeToken
   type: string
  
 trigger:
 - main
  
-pool:
-  vmImage: 'ubuntu-latest'
+pool: default
  
 steps:
 - script: echo "Git Clone"
