@@ -33,7 +33,7 @@ steps:
  
 - script: |
     echo "Building Docker Image"
-    sudo docker build -t $(dockerImageName) .
+    docker build -t $(dockerImageName):lastest .
   displayName: 'Build Docker Image'
  
 - script: |
