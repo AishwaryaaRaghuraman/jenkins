@@ -23,13 +23,17 @@ parameters:
     type: string
     default: 'Maven'
 
+
+
 # Stages
 stages:
   - stage: Clone
     displayName: Clone Repository
+    pool: default
     jobs:
       - job: CloneRepo
         displayName: Clone Repository
+       
         steps:
           - checkout: self
             clean: true
