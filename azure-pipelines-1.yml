@@ -1,15 +1,45 @@
-# Maven
-# Build your Java project and run tests with Apache Maven.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
-
+parameters:
+- name: gitUsername
+  type: string
+- name: repoName
+  type: string
+- name: branchName
+  type: string
+- name: dockerImageName
+  type: string
+  default: myapp
+ 
 trigger:
 - main
-
+ 
 pool: Default
-
+ 
 steps:
+- script: echo "Git Clone"
+  displayName: 'Git Clone'
+  env:
+    GIT_USERNAME: $(gitUsername)
+    REPO_NAME: $(repoName)
+    BRANCH_NAME: $(branchName)
+  continueOnError: false
+ 
 - script: |
-    echo "mvn version"
-    mvn --version
-  displayName: 'muv version'
+    echo "Running SonarQube Scan"
+    mvn sonar:sonar
+  displayName: 'Run SonarQube Scan'
+ 
+- script: |
+    echo "Quality Gate"
+    mvn sonar:sonar -Dsonar.qualitygate.wait=true
+  displayName: 'Run SonarQube Scan'
+ 
+- script: |
+    echo "Cleaning Local Directory"
+    sudo rm -rf *
+  displayName: 'Clean Local Directory'
+ 
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'build-artifact'
+    publishLocation: 'pipeline'
