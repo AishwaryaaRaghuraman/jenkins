@@ -36,10 +36,6 @@ steps:
     BRANCH_NAME: $(branchName)
   continueOnError: false
  
-- script: |
-    echo "Building Docker Image"
-    sudo docker build -t $(dockerImageName) .
-  displayName: 'Build Docker Image'
  
 - script: |
     echo "Running SonarQube Scan"
