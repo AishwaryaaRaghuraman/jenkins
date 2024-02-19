@@ -1,82 +1,56 @@
-# Azure Pipelines YAML file for a DevOps Engineer build pipeline
-
-# Parameters
 parameters:
-  - name: gitUsername
-    displayName: Git Username
-    type: string
-    default: 'my-git-username'
-  - name: repoName
-    displayName: Repository Name
-    type: string
-    default: 'my-repo-name'
-  - name: branchName
-    displayName: Branch Name
-    type: string
-    default: 'main'
-  - name: framework
-    displayName: Framework
-    type: string
-    default: 'Springboot'
-  - name: buildTool
-    displayName: Build Tool
-    type: string
-    default: 'Maven'
+- name: gitUsername
+  type: string
+- name: repoName
+  type: string
+- name: branchName
+  type: string
+- name: dockerImageName
+  type: string
+  default: myapp
+- name: sonarqubeProjectKey
+  type: string
+  default: aishwaryaaraghuraman_azuredevops
+
+- name: sonarqubeToken
+  type: string
+ 
+trigger:
+- main
+
+variables:
+  sonarqube Token: 7086d78878ddbb7c0df099499599229f5a022093
 
 
-
-# Stages
-stages:
-  - stage: Clone
-    displayName: Clone Repository
-    pool: default
-    jobs:
-      - job: CloneRepo
-        displayName: Clone Repository
-       
-        steps:
-          - checkout: self
-            clean: true
-            submodules: true
-
-  - stage: Build
-    displayName: Build Project
-    pool: default
-    jobs:
-      - job: BuildProject
-        displayName: Build Project
-        steps:
-          - script: mvn clean package
-            displayName: Build Project
-
-  - stage: SonarScan
-    displayName: Perform SonarScan
-    pool: default
-    jobs:
-      - job: SonarScan
-        displayName: Perform SonarScan
-        steps:
-          - script: mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=aishwaryaaraghuraman_azuredevops
-            displayName: SonarScan 
-
-  - stage: QualityGate
-    displayName: Check Quality Gate
-    pool: default
-    jobs:
-      - job: QualityGate
-        displayName: Check Quality Gate
-        steps:
-          - script: sonar-quality-gate -Dsonar.projectKey=aishwaryaaraghuraman_azuredevops
-            displayName: QualityGate
-
-  - stage: Clean
-    displayName: Clean Local Directory
-    pool: default
-    jobs:
-      - job: CleanLocalDirectory
-        displayName: Clean Local Directory
-        steps:
-          - script: sudo rm -rf *
-            displayName: Clean Local Directory
-
-              
+pool:
+  vmImage: 'ubuntu-latest'
+ 
+steps:
+- script: echo "Git Clone"
+  displayName: 'Git Clone'
+  env:
+    GIT_USERNAME: $(gitUsername)
+    REPO_NAME: $(repoName)
+    BRANCH_NAME: $(branchName)
+  continueOnError: false
+ 
+- script: |
+    echo "Building Docker Image"
+    sudo docker build -t $(dockerImageName) .
+  displayName: 'Build Docker Image'
+ 
+- script: |
+    echo "Running SonarQube Scan"
+    mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=aishwaryaaraghuraman_azuredevops
+  displayName: 'Run SonarQube Scan'
+ 
+- script: |
+    echo "Cleaning Local Directory"
+    sudo rm -rf *
+  displayName: 'Clean Local Directory'
+ 
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'build-artifact'
+    publishLocation: 'pipeline'
