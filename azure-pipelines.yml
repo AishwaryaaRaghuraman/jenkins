@@ -1,18 +1,41 @@
- 
+parameters:
+- name: gitUsername
+  type: string
+  default: AishwaryaaRaghuraman
+- name: repoName
+  type: string
+  default: jenkins
+- name: branchName
+  type: string
+  default: main
+
+
 trigger:
 - main
  
-pool:
-  vmImage: 'ubuntu-latest'
+pool: Default
  
 steps:
-- task: Maven@4
+- script: echo "Git Clone"
+  displayName: 'Git Clone'
+  env:
+    GIT_USERNAME: $(gitUsername)
+    REPO_NAME: $(repoName)
+    BRANCH_NAME: $(branchName)
+  continueOnError: false
+ 
+ 
+- script: |
+    sonar-scanner.bat -D"sonar.projectKey=AzureDevops" -D"sonar.sources=." -D"sonar.host.url=http://10.198.32.133:9000" -D"sonar.token=sqp_fb337fa6155bad0e72f5834351858930234bba03"
+  displayName: 'Run SonarQube Scan'
+ 
+- script: |
+    echo "Cleaning Local Directory"
+    sudo rm -rf *
+  displayName: 'Clean Local Directory'
+ 
+- task: PublishPipelineArtifact@1
   inputs:
-    mavenPomFile: 'pom.xml'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    javaHomeOption: 'JDKVersion'
-    mavenVersionOption: 'Default'
-    mavenAuthenticateFeed: false
-    effectivePomSkip: false
-    sonarQubeRunAnalysis: false
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'build-artifact'
+    publishLocation: 'pipeline'
