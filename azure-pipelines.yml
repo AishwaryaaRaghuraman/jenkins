@@ -26,7 +26,7 @@ steps:
  
  
 - script: |
-    sonar-scanner.bat -D"sonar.projectKey=AzureDevops" -D"sonar.sources=." -D"sonar.host.url=http://10.198.32.133:9000" -D"sonar.token=sqp_fb337fa6155bad0e72f5834351858930234bba03"
+    mvn sonar:sonar
   displayName: 'Run SonarQube Scan'
  
 - script: |
