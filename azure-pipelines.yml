@@ -1,13 +1,13 @@
 parameters:
 - name: gitUsername
   type: string
-  default: AishwaryaaRaghuraman
+  default: ruchi672
 - name: repoName
   type: string
-  default: jenkins
+  default: homepage-app-springboot-jar
 - name: branchName
   type: string
-  default: main
+  default: master
 
 
 trigger:
