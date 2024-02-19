@@ -31,11 +31,6 @@ steps:
   displayName: 'Run SonarQube Scan'
  
 
-- script: |
-    echo "Cleaning Local Directory"
-    rm -rf *
-  displayName: 'Clean Local Directory'
- 
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '$(Pipeline.Workspace)'
