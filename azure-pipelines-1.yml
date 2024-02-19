@@ -39,7 +39,7 @@ steps:
  
 - script: |
     echo "Running SonarQube Scan"
-    mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=aishwaryaaraghuraman_azuredevops
+    mvn sonar:sonar
   displayName: 'Run SonarQube Scan'
  
 - script: |
