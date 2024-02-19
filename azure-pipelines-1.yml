@@ -22,7 +22,7 @@ trigger:
 - main
 
 variables:
-  sonarqube Token: 7086d78878ddbb7c0df099499599229f5a022093
+  SONAR_TOKEN: 7086d78878ddbb7c0df099499599229f5a022093
 
 
 pool: Default
