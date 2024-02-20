@@ -26,7 +26,7 @@ steps:
  
 - script: |
     echo Starting the build
-    mvn package
+    mvn clean package
   displayName: 'Build with Maven'
     
 - script: |
@@ -34,10 +34,8 @@ steps:
     sonar-scanner.bat -D"sonar.projectKey=AzureDevops" -D"sonar.sources=." -D"sonar.host.url=http://10.198.32.133:9000" -D"sonar.token=sqp_fb337fa6155bad0e72f5834351858930234bba03" -D"sonar.sources=src/main/java/" -D"sonar.java.binaries=src/main/java/com/dockerforjavadevelopers/hello/"
   displayName: 'Run SonarQube Scan'
 
-
-
-- script: |
-    echo "Uploading artifact to Docker Hub"
-    docker build -t us.gcr.io/phonic-realm-411009/imagename:tag .
-    docker push us.gcr.io/phonic-realm-411009/imagename:tag
-  displayName: 'Upload artifact to Docker Hub'
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'build-artifact'
+    publishLocation: 'pipeline'
