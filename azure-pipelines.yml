@@ -14,33 +14,39 @@ trigger:
 - main
  
 pool: Default
-# Stages
-stages:
-- stage: CloneRepo
-  displayName: Clone Git Repository
-  jobs:
-  - job: CloneRepoJob
-    displayName: Clone Git Repository
-    steps:
-     - script: echo "Git Clone"
-       displayName: 'Git Clone'
-       env:
-         GIT_USERNAME: $(gitUsername)
-         REPO_NAME: $(repoName)
-         BRANCH_NAME: $(branchName)
-       continueOnError: false
-      
+ 
+steps:
+- script: echo "Git Clone"
+  displayName: 'Git Clone'
+  env:
+    GIT_USERNAME: $(gitUsername)
+    REPO_NAME: $(repoName)
+    BRANCH_NAME: $(branchName)
+  continueOnError: false
+ 
+- script: |
+    echo Starting the build
+    mvn package
+  displayName: 'Build with Maven'
+    
+- script: |
+    echo "Running SonarQube Scan"
+    sonar-scanner.bat -D"sonar.projectKey=AzureDevops" -D"sonar.sources=." -D"sonar.host.url=http://10.198.32.133:9000" -D"sonar.token=sqp_fb337fa6155bad0e72f5834351858930234bba03" -D"sonar.sources=src/main/java/" -D"sonar.java.binaries=src/main/java/com/dockerforjavadevelopers/hello/"
+  displayName: 'Run SonarQube Scan'
 
-- stage: DeployToKubernetes
-  displayName: Deploy to Kubernetes
-  dependsOn: CloneRepo
-  jobs:
-  - job: DeployToKubernetesJob
-    displayName: Deploy to Kubernetes
-    steps:
-    - task: KubernetesManifest@1
-      inputs:
-            action: 'deploy'
-            connectionType: 'kubernetesServiceConnection'
-            manifests: 'deploy.yml'
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'build-artifact'
+    publishLocation: 'pipeline'
 
+- script: |
+    echo "Clean local directory"
+    rm -rf $(Pipeline.Workspace)
+  displayName: 'Clean local directory'
+
+- script: |
+    echo "Uploading artifact to Docker Hub"
+    docker build -t us.gcr.io/phonic-realm-411009/imagename:tag .
+    docker push us.gcr.io/phonic-realm-411009/imagename:tag
+  displayName: 'Upload artifact to Docker Hub'
