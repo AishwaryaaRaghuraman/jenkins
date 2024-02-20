@@ -9,40 +9,38 @@ parameters:
   type: string
   default: main
 
- 
+
 trigger:
 - main
  
 pool: Default
- 
-steps:
-- script: echo "Git Clone"
-  displayName: 'Git Clone'
-  env:
-    GIT_USERNAME: $(gitUsername)
-    REPO_NAME: $(repoName)
-    BRANCH_NAME: $(branchName)
-  continueOnError: false
+# Stages
+stages:
+- stage: CloneRepo
+  displayName: Clone Git Repository
+  jobs:
+  - job: CloneRepoJob
+    displayName: Clone Git Repository
+    steps:
+    - task: GitClone@0
+      displayName: Clone Git Repository
+      inputs:
+        repositoryName: $(repoName)
+        branch: $(branchName)
+      
 
-- script: |
-    echo Starting the build
-    mvn clean package
-  displayName: 'Build with Maven'
+- stage: DeployToKubernetes
+  displayName: Deploy to Kubernetes
+  dependsOn: CloneRepo
+  jobs:
+  - job: DeployToKubernetesJob
+    displayName: Deploy to Kubernetes
+    steps:
+    - task: KubernetesManifest@0
+      displayName: Apply Kubernetes Manifest
+      inputs:
+        kubernetesServiceConnection: 'Azure Kubernetes Service'
+        namespace: 'default'
+        manifests: 'deploy.yml'
+        action: 'apply'
 
-
-- script: |
-    echo "Running SonarQube Scan"
-    sonar-scanner.bat -D"sonar.projectKey=$(projectkey)" -D"sonar.sources=." -D"sonar.host.url=$(SONAR_URL)" -D"sonar.token=$(SONAR_TOKEN)" -D"sonar.sources=src/main/java/" -D"sonar.java.binaries=src/main/java/com/dockerforjavadevelopers/hello/"
-  displayName: 'Run SonarQube Scan'
- 
-- task: Docker@2
-  inputs:
-     repository: 'Azure'
-     command: 'buildAndPush'
-     Dockerfile: '*/Dockerfile'
-  displayName: 'Build Docker Image'
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(Pipeline.Workspace)'
-    artifact: 'build-artifact'
-    publishLocation: 'pipeline'
