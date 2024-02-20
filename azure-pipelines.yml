@@ -38,11 +38,9 @@ stages:
   - job: DeployToKubernetesJob
     displayName: Deploy to Kubernetes
     steps:
-    - task: KubernetesManifest@0
-      displayName: Apply Kubernetes Manifest
+    - task: KubernetesManifest@1
       inputs:
-        kubernetesServiceConnection: 'Azure Kubernetes Service'
-        namespace: 'default'
-        manifests: 'deploy.yml'
-        action: 'apply'
+            action: 'deploy'
+            connectionType: 'kubernetesServiceConnection'
+            manifests: 'deploy.yml'
 
