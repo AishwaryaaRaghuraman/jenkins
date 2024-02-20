@@ -22,11 +22,13 @@ stages:
   - job: CloneRepoJob
     displayName: Clone Git Repository
     steps:
-    - task: GitClone@0
-      displayName: Clone Git Repository
-      inputs:
-        repositoryName: $(repoName)
-        branch: $(branchName)
+     - script: echo "Git Clone"
+       displayName: 'Git Clone'
+       env:
+         GIT_USERNAME: $(gitUsername)
+         REPO_NAME: $(repoName)
+         BRANCH_NAME: $(branchName)
+       continueOnError: false
       
 
 - stage: DeployToKubernetes
