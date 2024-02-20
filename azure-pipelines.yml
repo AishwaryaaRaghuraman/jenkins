@@ -34,22 +34,27 @@ steps:
     REPO_NAME: $(repoName)
     BRANCH_NAME: $(branchName)
   continueOnError: false
- 
+
 - script: |
-    echo "Building Docker Image"
-    sudo docker build -t $(dockerImageName) .
-  displayName: 'Build Docker Image'
+    echo Starting the build
+    mvn clean package
+  displayName: 'Build with Maven'
+
  
 - script: |
     echo "Running SonarQube Scan"
-    sudo docker run -e SONAR_HOST_URL=$(sonarqubeUrl) \
+    docker run -e SONAR_HOST_URL=$(sonarqubeUrl) \
                   -e SONAR_LOGIN=$(sonarqubeToken) \
                   -e SONAR_PROJECT_KEY=$(sonarqubeProjectKey) \
                   $(dockerImageName)
   displayName: 'Run SonarQube Scan'
  
-
- 
+- task: Docker@2
+  inputs:
+     repository: 'Azure'
+     command: 'buildAndPush'
+     Dockerfile: '**/Dockerfile'
+  displayName: 'Build Docker Image'
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '$(Pipeline.Workspace)'
