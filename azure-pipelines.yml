@@ -50,7 +50,7 @@ steps:
   inputs:
      repository: 'Azure'
      command: 'buildAndPush'
-     Dockerfile: '**/Dockerfile'
+     Dockerfile: 'Dockerfile'
   displayName: 'Build Docker Image'
 - task: PublishPipelineArtifact@1
   inputs:
