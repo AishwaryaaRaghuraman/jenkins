@@ -8,18 +8,7 @@ parameters:
 - name: branchName
   type: string
   default: main
-- name: dockerImageName
-  type: string
-  default: myapp
-- name: sonarqubeProjectKey
-  type: string
-  default: AzureDevops
-- name: sonarqubeUrl
-  type: string
-  default: http://10.198.32.133:9000
-- name: sonarqubeToken
-  type: string
-  default: sqp_fb337fa6155bad0e72f5834351858930234bba03
+
  
 trigger:
 - main
@@ -40,17 +29,17 @@ steps:
     mvn clean package
   displayName: 'Build with Maven'
 
- 
+
 - script: |
     echo "Running SonarQube Scan"
-    sonar-scanner.bat -D"sonar.projectKey=AzureDevops" -D"sonar.sources=." -D"sonar.host.url=http://10.198.32.133:9000" -D"sonar.token=sqp_fb337fa6155bad0e72f5834351858930234bba03" -D"sonar.sources=src/main/java/" -D"sonar.java.binaries=src/main/java/com/dockerforjavadevelopers/hello/"
+    sonar-scanner.bat -D"sonar.projectKey=$(projectkey)" -D"sonar.sources=." -D"sonar.host.url=$(SONAR_URL)" -D"sonar.token=$(SONAR_TOKEN)" -D"sonar.sources=src/main/java/" -D"sonar.java.binaries=src/main/java/com/dockerforjavadevelopers/hello/"
   displayName: 'Run SonarQube Scan'
  
 - task: Docker@2
   inputs:
      repository: 'Azure'
      command: 'buildAndPush'
-     Dockerfile: 'Dockerfile'
+     Dockerfile: '*/Dockerfile'
   displayName: 'Build Docker Image'
 - task: PublishPipelineArtifact@1
   inputs:
