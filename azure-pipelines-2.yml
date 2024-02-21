@@ -1,0 +1,12 @@
+trigger:
+- main
+ 
+pool: Default
+ 
+steps:
+- task: DownloadBuildArtifacts@1
+  inputs:
+    buildType: 'current'
+    downloadType: 'single'
+    artifactName: 'build-artifact'
+    downloadPath: '$(Pipeline.Workspace)'
