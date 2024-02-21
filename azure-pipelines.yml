@@ -16,18 +16,29 @@ trigger:
 pool: Default
  
 steps:
-- task: DownloadBuildArtifacts@1
+- script: echo "Git Clone"
+  displayName: 'Git Clone'
+  env:
+    GIT_USERNAME: $(gitUsername)
+    REPO_NAME: $(repoName)
+    BRANCH_NAME: $(branchName)
+  continueOnError: false
+ 
+- script: |
+    echo Starting the build
+    mvn package
+  displayName: 'Build with Maven'
+    
+- script: |
+    echo "Running SonarQube Scan"
+    sonar-scanner.bat -D"sonar.projectKey=AzureDevops" -D"sonar.sources=." -D"sonar.host.url=http://10.198.32.133:9000" -D"sonar.token=sqp_fb337fa6155bad0e72f5834351858930234bba03" -D"sonar.sources=src/main/java/" -D"sonar.java.binaries=src/main/java/com/dockerforjavadevelopers/hello/"
+  displayName: 'Run SonarQube Scan'
+
+- task: PublishPipelineArtifact@1
   inputs:
-    buildType: 'specific'
-    project: '38bb69e9-e228-424f-8b11-902e3f2bea0e'
-    pipeline: '11'
-    specificBuildWithTriggering: true
-    buildVersionToDownload: 'latest'
-    allowPartiallySucceededBuilds: true
-    tags: 'azure1'
-    downloadType: 'single'
-    artifactName: 'build-artifact'
-    downloadPath: '$(System.ArtifactsDirectory)'
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'build-artifact'
+    publishLocation: 'pipeline'
 
 
 
