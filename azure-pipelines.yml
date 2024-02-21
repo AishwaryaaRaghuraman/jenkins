@@ -36,8 +36,8 @@ steps:
   displayName: 'Run SonarQube Scan'
 
 
-- task: PublishBuildArtifacts@1
+- task: PublishPipelineArtifact@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+    targetPath: '$(Pipeline.Workspace)'
+    ArtifactName: 'build-artifact'
+    publishLocation: 'pipeline'
