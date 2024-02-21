@@ -18,13 +18,7 @@ pool: Default
 steps:
 - task: DownloadBuildArtifacts@1
   inputs:
-    buildType: 'specific'
-    project: '38bb69e9-e228-424f-8b11-902e3f2bea0e'
-    pipeline: '11'
-    specificBuildWithTriggering: true
-    buildVersionToDownload: 'latest'
-    allowPartiallySucceededBuilds: true
-    tags: 'azure1'
+    buildType: 'current'
     downloadType: 'single'
     artifactName: 'build-artifact'
     downloadPath: '$(Pipeline.Workspace)'
