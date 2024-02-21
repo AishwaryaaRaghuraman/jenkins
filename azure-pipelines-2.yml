@@ -5,14 +5,22 @@ trigger:
 pool: Default
  
 steps:
-- task: DownloadBuildArtifacts@1
+# - task: DownloadBuildArtifacts@1
+#   inputs:
+#     buildType: 'specific'
+#     project: '38bb69e9-e228-424f-8b11-902e3f2bea0e'
+#     pipeline: '11'
+#     buildVersionToDownload: 'latestFromBranch'
+#     branchName: 'refs/heads/main'
+#     tags: 'lastest'
+#     downloadType: 'single'
+#     artifactName: 'build-artifact'
+#     downloadPath: '$(Pipeline.Workspace)'
+
+- task: DownloadPipelineArtifact@2
   inputs:
     buildType: 'specific'
     project: '38bb69e9-e228-424f-8b11-902e3f2bea0e'
-    pipeline: '11'
-    buildVersionToDownload: 'latestFromBranch'
-    branchName: 'refs/heads/main'
-    tags: 'lastest'
-    downloadType: 'single'
-    artifactName: 'build-artifact'
-    downloadPath: '$(Pipeline.Workspace)'
+    definition: 'AishwaryaaRaghuraman.jenkins'
+    buildVersionToDownload: 'latest'
+    targetPath: '$(Pipeline.Workspace)'
