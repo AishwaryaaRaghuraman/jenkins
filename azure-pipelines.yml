@@ -32,7 +32,7 @@ steps:
     
 - script: |
     echo "Running SonarQube Scan"
-    sonar-scanner.bat -D"sonar.projectKey=$(projectkey)" -D"sonar.sources=." -D"sonar.host.url=$(SONAR_URL)" -D"sonar.token=$(SONAR_TOKEN)" -D"sonar.sources=src/main/java/" -D"sonar.java.binaries=src/main/java/com/dockerforjavadevelopers/hello/"
+    sonar-scanner.bat -D"sonar.projectKey=$(projectkey)" -D"sonar.sources=." -D"sonar.host.url=$(SONAR_URL)" -D"sonar.token=$(SONAR_TOKEN)" 
   displayName: 'Run SonarQube Scan'
 
 
