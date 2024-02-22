@@ -34,9 +34,19 @@ steps:
     sonar-scanner.bat -D"sonar.projectKey=$(projectkey)" -D"sonar.sources=." -D"sonar.host.url=$(SONAR_URL)" -D"sonar.token=$(SONAR_TOKEN)" -D"sonar.sources=src/main/java/" -D"sonar.java.binaries=src/main/java/com/dockerforjavadevelopers/hello/"
   displayName: 'Run SonarQube Scanning'
 
-- task: PublishPipelineArtifact@1
+# - task: PublishPipelineArtifact@1
+#   inputs:
+#     targetPath: '$(Pipeline.Workspace)'
+#     artifact: 'build-artifact'
+#     publishLocation: 'pipeline'
+
+- task: CopyFiles@2
+  displayName: 'Copy Files to artifact staging directory'
   inputs:
-    targetPath: '$(Pipeline.Workspace)'
-    artifact: 'build-artifact'
-    publishLocation: 'pipeline'
-  
+        SourceFolder: '$(System.DefaultWorkingDirectory)'
+        Contents: '**/target/*.?(war|jar)'
+        TargetFolder: $(Build.ArtifactStagingDirectory)
+- task: PublishBuildArtifacts@1
+  inputs:
+        pathToPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: SampleSpringBootBuild
