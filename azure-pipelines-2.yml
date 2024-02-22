@@ -1,5 +1,4 @@
 trigger:
-
 - main
  
 pool: Default
@@ -25,4 +24,7 @@ steps:
     buildVersionToDownload: 'latest'
     targetPath: '$(Pipeline.Workspace)'
 
-
+- script: 
+    cd $(Pipeline.Workspace)
+    java -jar 
+  displayName: "Deploy JAVA Application"
