@@ -80,6 +80,6 @@ jobs:
       downloadPath: '$(Build.ArtifactStagingDirectory)'
   
   - script: 
-      cd /20090200/SampleSpringBootBuild/target
+      cd $(Build.ArtifactStagingDirectory)/target
       java -jar hello-world-0.1.0.jar
     displayName: "Deploy JAVA Application"
