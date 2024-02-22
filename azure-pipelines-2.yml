@@ -22,9 +22,10 @@ steps:
     project: '38bb69e9-e228-424f-8b11-902e3f2bea0e'
     definition: 'AishwaryaaRaghuraman.jenkins'
     buildVersionToDownload: 'latest'
-    targetPath: '$(Pipeline.Workspace)'
+    # targetPath: '$(Pipeline.Workspace)'
+    downloadPath: '$(System.ArtifactsDirectory)'
 
 - script: 
-    cd $(Pipeline.Workspace)
+    cd $(System.ArtifactsDirectory)
     java -jar hello-world-0.1.0.jar
   displayName: "Deploy JAVA Application"
