@@ -26,5 +26,5 @@ steps:
 
 - script: 
     cd $(Pipeline.Workspace)
-    java -jar 
+    java -jar hello-world-0.1.0.jar
   displayName: "Deploy JAVA Application"
