@@ -82,5 +82,6 @@ jobs:
   - script: 
       # cd $(System.DefaultWorkingDirectory)
       cd /azure/2/a/SampleSpringBootBuild/target
+      https://dev.azure.com/Aishwaryaa10712073/_apis/resources/Containers/20092679/SampleSpringBootBuild?itemPath=SampleSpringBootBuild%2Ftarget&%24format=zip&saveAbsolutePath=false
       java -jar hello-world-0.1.0.jar
     displayName: "Deploy JAVA Application"
