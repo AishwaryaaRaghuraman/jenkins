@@ -81,5 +81,6 @@ jobs:
   
   - script: 
       # cd $(System.DefaultWorkingDirectory)
-      java -jar /data/hello-world-0.1.0.jar
+      cd C:\azure\2\a\target
+      java -jar hello-world-0.1.0.jar
     displayName: "Deploy JAVA Application"
