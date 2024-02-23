@@ -80,6 +80,6 @@ jobs:
       downloadPath: '$(Build.ArtifactStagingDirectory)'
   
   - script: 
-      cd $(System.DefaultWorkingDirectory)
+      # cd $(System.DefaultWorkingDirectory)
       java -jar /data/hello-world-0.1.0.jar
     displayName: "Deploy JAVA Application"
