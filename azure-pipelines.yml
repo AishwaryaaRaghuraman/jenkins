@@ -81,6 +81,6 @@ jobs:
   
   - script: 
       # cd $(System.DefaultWorkingDirectory)
-      cd C:/azure/2/a/target
+      cd /azure/2/a/SampleSpringBootBuild/target
       java -jar hello-world-0.1.0.jar
     displayName: "Deploy JAVA Application"
