@@ -18,6 +18,7 @@ pool: Default
 
 steps:
   - script: echo "Git Clone"
+      git config --global http.sslbackend schannel
     displayName: 'Git Clone'
     env:
       GIT_USERNAME: $(gitUsername)
