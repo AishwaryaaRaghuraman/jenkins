@@ -13,12 +13,10 @@ parameters:
 trigger:
 - main
 
-jobs:
-- job: Build 
-  displayName: 'Build JAVA Application'
-  pool: Default
- 
-  steps:
+pool: Default
+
+
+steps:
   - script: echo "Git Clone"
     displayName: 'Git Clone'
     env:
@@ -54,33 +52,33 @@ jobs:
           pathToPublish: $(Build.ArtifactStagingDirectory)
           artifactName: SampleSpringBootBuild
 
-- job: Deploy
-  displayName: 'Deploy JAVA Application'
-  pool: Default
-  steps:
-  # - task: DownloadBuildArtifacts@1
-  #   inputs:
-  #     buildType: 'specific'
-  #     project: '38bb69e9-e228-424f-8b11-902e3f2bea0e'
-  #     pipeline: '11'
-  #     buildVersionToDownload: 'latestFromBranch'
-  #     branchName: 'refs/heads/main'
-  #     tags: 'lastest'
-  #     downloadType: 'single'
-  #     artifactName: 'build-artifact'
-  #     downloadPath: '$(Pipeline.Workspace)'
+# # - job: Deploy
+#   displayName: 'Deploy JAVA Application'
+#   pool: Default
+#   steps:
+#   # - task: DownloadBuildArtifacts@1
+#   #   inputs:
+#   #     buildType: 'specific'
+#   #     project: '38bb69e9-e228-424f-8b11-902e3f2bea0e'
+#   #     pipeline: '11'
+#   #     buildVersionToDownload: 'latestFromBranch'
+#   #     branchName: 'refs/heads/main'
+#   #     tags: 'lastest'
+#   #     downloadType: 'single'
+#   #     artifactName: 'build-artifact'
+#   #     downloadPath: '$(Pipeline.Workspace)'
   
-  - task: DownloadPipelineArtifact@2
-    inputs:
-      buildType: 'specific'
-      project: '38bb69e9-e228-424f-8b11-902e3f2bea0e'
-      definition: 'AishwaryaaRaghuraman.jenkins'
-      buildVersionToDownload: 'latest'
-      # targetPath: '$(Pipeline.Workspace)'
-      downloadPath: '$(Build.ArtifactStagingDirectory)'
+#   - task: DownloadPipelineArtifact@2
+#     inputs:
+#       buildType: 'specific'
+#       project: '38bb69e9-e228-424f-8b11-902e3f2bea0e'
+#       definition: 'AishwaryaaRaghuraman.jenkins'
+#       buildVersionToDownload: 'latest'
+#       # targetPath: '$(Pipeline.Workspace)'
+#       downloadPath: '$(Build.ArtifactStagingDirectory)'
   
-  - script: 
-      # cd $(System.DefaultWorkingDirectory)
-      cd $(Build.ArtifactStagingDirectory)/SampleSpringBootBuild/target
-      java -jar hello-world-0.1.0.jar
-    displayName: "Deploy JAVA Application"
+#   - script: 
+#       # cd $(System.DefaultWorkingDirectory)
+#       cd $(Build.ArtifactStagingDirectory)/SampleSpringBootBuild/target
+#       java -jar hello-world-0.1.0.jar
+#     displayName: "Deploy JAVA Application"
