@@ -14,7 +14,11 @@ parameters:
 
 trigger:
 - main
-
+variables:
+- name: gitUsername
+  value: myValue
+  readonly: true
+  
 pool: Default
 
 steps:
