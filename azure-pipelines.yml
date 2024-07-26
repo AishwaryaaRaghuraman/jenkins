@@ -1,16 +1,16 @@
-# parameters:
-# - name: gitUsername
-#   type: string
-# - name: repoName
-#   type: string
-# - name: branchName
-#   type: string
-# - name: PROJECTKEY
-#   type: string
-# - name: SONAR_URL
-#   type: string
-# - name: SONAR_TOKEN
-#   type: string
+parameters:
+- name: gitUsername
+  type: string
+- name: repoName
+  type: string
+- name: branchName
+  type: string
+- name: PROJECTKEY
+  type: string
+- name: SONAR_URL
+  type: string
+- name: SONAR_TOKEN
+  type: string
 
 trigger:
 - main
