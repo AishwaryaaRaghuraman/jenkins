@@ -9,12 +9,16 @@ parameters:
   type: string
 - name: SONAR_URL
   type: string
-- name: SONAR_TOKEN
-  type: string
+# - name: SONAR_TOKEN
+#   type: string
 
 trigger:
 - main
-
+variables:
+- name: gitUsername
+  value: myValue
+  readonly: true
+  
 pool: Default
 
 steps:
