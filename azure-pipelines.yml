@@ -5,12 +5,12 @@ parameters:
   type: string
 - name: branchName
   type: string
-- name: PROJECTKEY
-  type: string
-- name: SONAR_URL
-  type: string
-- name: SONAR_TOKEN
-  type: string
+# - name: PROJECTKEY
+#   type: string
+# - name: SONAR_URL
+#   type: string
+# - name: SONAR_TOKEN
+#   type: string
 
 trigger:
 - main
